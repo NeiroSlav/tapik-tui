@@ -1,0 +1,9 @@
+[project]
+name = "tapik-tui"
+version = "0.1.0"
+description = "Tui client for tapik messanger"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "textual>=6.6.0",
+]
