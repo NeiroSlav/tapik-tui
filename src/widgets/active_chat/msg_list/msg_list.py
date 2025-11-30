@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from textual.containers import VerticalScroll
 from textual.reactive import reactive
 from textual.widget import Widget
@@ -31,12 +33,15 @@ class MessageListWidget(VerticalScroll):
 
     messages = reactive([])  # список объектов сообщений
 
-    def __init__(self):
+    def __init__(self, chat_id: UUID):
         super().__init__()
 
         # Подписка на обновление сообщений
-        message_store.subscribe(callback=self._subscibe_cb)
-        self.messages = message_store.messages
+        message_store.subscribe(
+            chat_id=chat_id,
+            callback=self._subscibe_cb,
+        )
+        self.messages = message_store.get_chat_messages(chat_id)
 
         # Мапы списка сообщений к сообщениям
         self._message_widgets: dict[int, Widget] = {}

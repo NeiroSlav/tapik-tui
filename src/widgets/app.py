@@ -1,6 +1,7 @@
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal
 
+from utils.filler import CHAT_IDS
 from widgets.active_chat.active_chat import ActiveChatWidget
 from widgets.sidebar.sidebar import SidebarWidget
 
@@ -17,5 +18,5 @@ class TapikApp(App[None]):
 
         yield Horizontal(
             SidebarWidget(),
-            ActiveChatWidget(),
+            ActiveChatWidget(tuple(CHAT_IDS)[0]),
         )

@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import UUID
 
 from textual.app import ComposeResult
 from textual.containers import Horizontal
@@ -29,6 +30,10 @@ class MessageInputWidget(Widget):
     }
     """
 
+    def __init__(self, chat_id: UUID):
+        super().__init__()
+        self.chat_id = chat_id
+
     def compose(self) -> ComposeResult:
         with Horizontal():
             self.input = Input(placeholder="Введите сообщение...", id="msg-input")
@@ -50,23 +55,29 @@ class MessageInputWidget(Widget):
             await self._post_new_msg(text)
 
     async def _post_new_msg(self, text: str) -> None:
-        await message_store.add_message(
-            Message(
-                text=text,
-                author="Me",
-                time=datetime.now(),
-                is_self=True,
-                local_id=message_store.test_get_last_id() + 1,
-            )
+        await message_store.add_messages(
+            [
+                Message(
+                    text=text,
+                    author="Me",
+                    time=datetime.now(),
+                    is_self=True,
+                    local_id=message_store.test_get_last_id(self.chat_id) + 1,
+                    chat_id=self.chat_id,
+                )
+            ]
         )
 
     async def _post_old_msg(self, text: str) -> None:
-        await message_store.add_message(
-            Message(
-                text=text,
-                author="Me",
-                time=datetime.now(),
-                is_self=True,
-                local_id=message_store.test_get_first_id() - 1,
-            )
+        await message_store.add_messages(
+            [
+                Message(
+                    text=text,
+                    author="Me",
+                    time=datetime.now(),
+                    is_self=True,
+                    local_id=message_store.test_get_first_id(self.chat_id) - 1,
+                    chat_id=self.chat_id,
+                )
+            ]
         )
