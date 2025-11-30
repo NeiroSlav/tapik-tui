@@ -8,6 +8,7 @@ from textual.widget import Widget
 from textual.widgets import Input
 
 from core.entities import Message
+from store.chat import chat_store
 from store.message import message_store
 
 
@@ -50,26 +51,24 @@ class MessageInputWidget(Widget):
 
     async def _post_msg(self, text: str) -> None:
         if text.startswith("-"):
-            await self._post_old_msg(text)
+            self._post_old_msg(text)
         else:
-            await self._post_new_msg(text)
+            self._post_new_msg(text)
 
-    async def _post_new_msg(self, text: str) -> None:
-        await message_store.add_messages(
-            [
-                Message(
-                    text=text,
-                    author="Me",
-                    time=datetime.now(),
-                    is_self=True,
-                    local_id=message_store.test_get_last_id(self.chat_id) + 1,
-                    chat_id=self.chat_id,
-                )
-            ]
+    def _post_new_msg(self, text: str) -> None:
+        message = Message(
+            text=text,
+            author="Me",
+            time=datetime.now(),
+            is_self=True,
+            local_id=message_store.test_get_last_id(self.chat_id) + 1,
+            chat_id=self.chat_id,
         )
+        message_store.add_messages([message])
+        chat_store.upd_last_msg(self.chat_id, message)
 
-    async def _post_old_msg(self, text: str) -> None:
-        await message_store.add_messages(
+    def _post_old_msg(self, text: str) -> None:
+        message_store.add_messages(
             [
                 Message(
                     text=text,

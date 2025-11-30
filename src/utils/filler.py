@@ -39,11 +39,11 @@ messages: dict[UUID, list[Message]] = {
     chat_id: create_messages(chat_id) for chat_id in CHAT_IDS
 }
 
-chats: list[Chat] = [
-    Chat(
+chats: dict[UUID, Chat] = {
+    chat_id: Chat(
         name=generate_name(),
         chat_id=chat_id,
         last_msg=messages[chat_id][-1],
     )
     for chat_id in CHAT_IDS
-]
+}

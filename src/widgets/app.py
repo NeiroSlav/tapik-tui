@@ -7,7 +7,7 @@ from widgets.sidebar.sidebar import SidebarWidget
 
 
 class TapikApp(App[None]):
-    """Корневой компонент прилоежния"""
+    """Корневой компонент приложения"""
 
     BINDINGS = [
         ("d", "toggle_dark", "Toggle dark mode"),
@@ -15,8 +15,9 @@ class TapikApp(App[None]):
 
     def compose(self) -> ComposeResult:
         """Called to add widgets to the app."""
+        selected_chat_id = tuple(CHAT_IDS)[3]
 
         yield Horizontal(
-            SidebarWidget(),
-            ActiveChatWidget(tuple(CHAT_IDS)[0]),
+            SidebarWidget(selected_chat_id),
+            ActiveChatWidget(selected_chat_id),
         )

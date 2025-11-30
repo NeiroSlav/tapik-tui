@@ -19,16 +19,6 @@ class MessageListWidget(VerticalScroll):
         height: 100%;
         padding: 0 0;
     }
-
-    MessageListWidget > ScrollBar {
-        background: grey;
-        width: 1;
-    }
-
-    MessageListWidget > ScrollBar > Thumb {
-        background: white;
-    }
-
     """
 
     messages = reactive([])  # список объектов сообщений
@@ -37,10 +27,7 @@ class MessageListWidget(VerticalScroll):
         super().__init__()
 
         # Подписка на обновление сообщений
-        message_store.subscribe(
-            chat_id=chat_id,
-            callback=self._subscibe_cb,
-        )
+        message_store.subscribe(chat_id, self._subscibe_cb)
         self.messages = message_store.get_chat_messages(chat_id)
 
         # Мапы списка сообщений к сообщениям
@@ -48,12 +35,13 @@ class MessageListWidget(VerticalScroll):
         self.oldest_msg_id = self.messages[0].local_id
         self.newest_msg_id = self.messages[-1].local_id
 
-    async def _subscibe_cb(self, new_messages: list[Message]):
-        logger("Коллбек отработал")
-        self.messages = new_messages
-        await self._render_diff_messages()
-
     # Отрисовки при изменениях
+
+    def _subscibe_cb(self, messages: list[Message]):
+        """Коллбек обновления для интеграции в message store"""
+        logger("Коллбек отработал")
+        self.messages = messages
+        self.call_later(self._render_diff_messages)
 
     async def _render_diff_messages(self):
         """Вычисление разницы сообщений, и отрисовка неотрисованных"""
