@@ -12,7 +12,7 @@ class ChatStore:
 
     def __init__(self):
         self._chats: dict[UUID, Chat] = chats
-        self._subscribers: list[ChatSubscriberCB] = []
+        self._subs: list[ChatSubscriberCB] = []
 
     @property
     def chats(self):
@@ -31,14 +31,14 @@ class ChatStore:
 
     def subscribe(self, callback: ChatSubscriberCB):
         """Подписка виджетов на обновления"""
-        self._subscribers.append(callback)
+        self._subs.append(callback)
 
     def _notify_subscribers(self):
-        chats = self.get_chats()
-        for cb in self._subscribers:
+        chats = self.get_sorted_chats()
+        for cb in self._subs:
             cb(chats)
 
-    def get_chats(self) -> list[Chat]:
+    def get_sorted_chats(self) -> list[Chat]:
         return sorted(self._chats.values(), key=lambda c: c.last_msg.time)
 
 

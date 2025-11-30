@@ -25,7 +25,7 @@ class SidebarWidget(VerticalScroll):
 
     def __init__(self, selected_chat_id: UUID):
         super().__init__()
-        self.chats = chat_store.get_chats()
+        self.chats = chat_store.get_sorted_chats()
         self.selected_chat_id = selected_chat_id
         chat_store.subscribe(self._subscibe_cb)
 

@@ -14,7 +14,7 @@ class MessageStore:
 
     def __init__(self):
         self._messages: dict[UUID, list[Message]] = messages
-        self._subscribers: dict[UUID, list[MsgSubscriberCB]] = defaultdict(list)
+        self._subs: dict[UUID, list[MsgSubscriberCB]] = defaultdict(list)
 
     def get_chat_messages(self, chat_id: UUID):
         return self._messages[chat_id]
@@ -34,11 +34,11 @@ class MessageStore:
 
     def subscribe(self, chat_id: UUID, callback: MsgSubscriberCB):
         """Подписка виджетов на обновления"""
-        self._subscribers[chat_id].append(callback)
+        self._subs[chat_id].append(callback)
 
     def _notify_subscribers(self, chat_ids: set[UUID]):
         for chat_id in chat_ids:
-            for cb in self._subscribers[chat_id]:
+            for cb in self._subs[chat_id]:
                 cb(self._messages[chat_id])
 
     def test_get_first_id(self, chat_id: UUID) -> int:
