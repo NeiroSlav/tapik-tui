@@ -39,19 +39,34 @@ class MessageInputWidget(Widget):
 
     async def on_input_submitted(self, event: Input.Submitted):
         text = self.input.value.strip()
-        # new_id = (
-        #     message_store.test_get_first_id()
-        #     if text.startswith("-")
-        #     else message_store.test_get_last_id()
-        # )
         if text:
-            message_store.add_message(
-                Message(
-                    text=text,
-                    author="Me",
-                    time=datetime.now(),
-                    is_self=True,
-                    # local_id=new_id,
-                )
-            )
+            await self._post_msg(text)
             self.input.value = ""
+
+    async def _post_msg(self, text: str) -> None:
+        if text.startswith("-"):
+            await self._post_old_msg(text)
+        else:
+            await self._post_new_msg(text)
+
+    async def _post_new_msg(self, text: str) -> None:
+        await message_store.add_message(
+            Message(
+                text=text,
+                author="Me",
+                time=datetime.now(),
+                is_self=True,
+                local_id=message_store.test_get_last_id() + 1,
+            )
+        )
+
+    async def _post_old_msg(self, text: str) -> None:
+        await message_store.add_message(
+            Message(
+                text=text,
+                author="Me",
+                time=datetime.now(),
+                is_self=True,
+                local_id=message_store.test_get_first_id() - 1,
+            )
+        )

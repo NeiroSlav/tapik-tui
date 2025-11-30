@@ -17,7 +17,7 @@ messages = [
         author="Bibus" if i % 3 else "Bobus",
         time=datetime.now() + timedelta(minutes=i),
         is_self=not bool(i % 3),
-        local_id=i,
+        local_id=i + 20,
     )
     for i in range(20)
 ]

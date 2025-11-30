@@ -1,5 +1,3 @@
-import asyncio
-
 from textual.containers import VerticalScroll
 from textual.reactive import reactive
 from textual.widget import Widget
@@ -37,7 +35,7 @@ class MessageListWidget(VerticalScroll):
         super().__init__()
 
         # Подписка на обновление сообщений
-        message_store.subscribe(self._subscibe_cb)
+        message_store.subscribe(callback=self._subscibe_cb)
         self.messages = message_store.messages
 
         # Мапы списка сообщений к сообщениям
@@ -45,45 +43,50 @@ class MessageListWidget(VerticalScroll):
         self.oldest_msg_id = self.messages[0].local_id
         self.newest_msg_id = self.messages[-1].local_id
 
-    def _subscibe_cb(self, new_messages: list[Message]):
+    async def _subscibe_cb(self, new_messages: list[Message]):
         logger("Коллбек отработал")
         self.messages = new_messages
-        asyncio.create_task(self.render_diff_messages())
+        await self._render_diff_messages()
 
-    # Render
+    # Отрисовки при изменениях
 
-    async def render_diff_messages(self):
-        # Отрисовка новых сообщений
-
-        logger("rendering diff")
-
+    async def _render_diff_messages(self):
+        """Вычисление разницы сообщений, и отрисовка неотрисованных"""
         newer_msgs = [m for m in self.messages if m.local_id > self.newest_msg_id]
-        for msg in newer_msgs:
+        older_msgs = [m for m in self.messages if m.local_id < self.oldest_msg_id]
+
+        if newer_msgs:
+            await self._render_newer_diffs(newer_msgs)
+            self.newest_msg_id = max([m.local_id for m in newer_msgs])
+            self.scroll_end(animate=False)
+
+        if older_msgs:
+            await self._render_older_diffs(older_msgs)
+            self.oldest_msg_id = min([m.local_id for m in older_msgs])
+
+    async def _render_newer_diffs(self, msgs: list[Message]):
+        """Отрисовка новых сообщений"""
+        for msg in msgs:
             widget = MessageRowWidget(msg)
             self._message_widgets[msg.local_id] = widget
             await self.mount(widget)
 
-        self.newest_msg_id = max([m.local_id for m in newer_msgs])
-        if newer_msgs:
-            self.scroll_end(animate=False)
-
-        # Отрисовка старых сообщений
-
-        older_msgs = [m for m in self.messages if m.local_id < self.oldest_msg_id]
+    async def _render_older_diffs(self, msgs: list[Message]):
+        """Отрисовка старых сообщений"""
         oldest_widget = self._message_widgets[self.oldest_msg_id]
-
-        for msg in older_msgs:
+        for msg in msgs:
             widget = MessageRowWidget(msg)
             self._message_widgets[msg.local_id] = widget
             await self.mount(widget, before=oldest_widget)
             oldest_widget = widget
 
-        self.oldest_msg_id = min([m.local_id for m in older_msgs])
+    # Отрисовки при монтировании
 
     async def on_mount(self):
-        await self.render_all_messages()
+        """Действия при монтировании"""
+        await self._render_all_messages()
 
-    async def render_all_messages(self):
+    async def _render_all_messages(self):
         """Полностью перерисовать список."""
         self.remove_children()
         for msg in self.messages:
