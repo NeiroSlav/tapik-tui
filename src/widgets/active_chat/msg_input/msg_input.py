@@ -1,64 +1,51 @@
+from datetime import datetime
+
 from textual.app import ComposeResult
 from textual.containers import Horizontal
-from textual.message import Message as TMessageEvent
 from textual.reactive import reactive
 from textual.widget import Widget
-from textual.widgets import Button, Input
+from textual.widgets import Input
+
+from core.entities import Message
+from store.message import message_store
 
 
 class MessageInputWidget(Widget):
-    """Область ввода нового сообщения с кнопкой отправки."""
-
-    # текущее содержимое input
     text = reactive("")
 
     DEFAULT_CSS = """
     MessageInputWidget {
         dock: bottom;
         width: 100%;
-        height: auto;
+        height: 3;
+        padding: 0 1 0 0;
     }
 
-    MessageInputWidget Horizontal {
+    #msg-input {
         width: 100%;
-        height: auto;
-    }
-
-    Input {
-        width: 80%;
-        height: auto;
-        min-height: 1;
-        padding: 0 0;
-    }
-
-    Button {
-        width: auto;
-        margin-left: 1;
-        background: red;
+        height: 3;
+        background: $surface 50%;
+        border: tall $surface 0%;
     }
     """
 
     def compose(self) -> ComposeResult:
         with Horizontal():
-            self.input = Input(placeholder="Введите сообщение...")
-            self.send_button = Button("Send", id="send-btn")
+            self.input = Input(placeholder="Введите сообщение...", id="msg-input")
             yield self.input
-            yield self.send_button
 
     async def on_input_changed(self, event: Input.Changed) -> None:
-        """Обновляем reactive text при вводе."""
         self.text = event.value
 
-    # async def on_button_pressed(self, event: Button.Pressed) -> None:
-    #     """Обработка нажатия кнопки."""
-    #     if event.button is self.send_button and self.text.strip():
-    #         await self.emit(self.MessageSent(self.text))
-    #         self.input.value = ""
-    #         self.text = ""
-
-    class MessageSent(TMessageEvent):
-        """Событие: пользователь отправил сообщение."""
-
-        def __init__(self, content: str) -> None:
-            self.content = content
-            super().__init__()
+    async def on_input_submitted(self, event: Input.Submitted):
+        text = self.input.value.strip()
+        if text:
+            message_store.add_message(
+                Message(
+                    text=text,
+                    author="Me",
+                    time=datetime.now(),
+                    is_self=True,
+                )
+            )
+            self.input.value = ""

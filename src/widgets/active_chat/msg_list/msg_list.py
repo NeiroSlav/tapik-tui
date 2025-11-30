@@ -1,7 +1,11 @@
+import asyncio
+
 from textual.containers import VerticalScroll
 from textual.reactive import reactive
 
 from core.entities import Message
+from store.message import message_store
+from utils.logger import logger
 from widgets.active_chat.msg_list.msg_row import MessageRowWidget
 
 
@@ -14,13 +18,24 @@ class MessageListWidget(VerticalScroll):
         height: 100%;
         padding: 0 0;
     }
+
+    MessageListWidget > ScrollBar {
+        background: grey;
+        width: 1;
+    }
+
+    MessageListWidget > ScrollBar > Thumb {
+        background: white;
+    }
+
     """
 
     messages = reactive([])  # список объектов сообщений
 
-    def __init__(self, messages: list[Message] | None = None):
+    def __init__(self):
         super().__init__()
-        self.messages = messages or []
+        message_store.subscribe(self._subscibe_cb)
+        self.messages = message_store.messages
 
     async def on_mount(self):
         await self.render_messages()
@@ -28,13 +43,12 @@ class MessageListWidget(VerticalScroll):
     async def render_messages(self):
         """Полностью перерисовать список."""
         self.remove_children()
-
         for msg in self.messages:
             widget = MessageRowWidget(msg)
             await self.mount(widget)
-
         self.scroll_end(animate=False)
 
-    async def add_message(self, msg: Message):
-        """Добавить одно сообщение и отрендерить его."""
-        self.messages = self.messages + [msg]  # триггерит reactive
+    def _subscibe_cb(self, new_messages: list[Message]):
+        logger("Коллбек отработал")
+        self.messages = new_messages
+        asyncio.create_task(self.render_messages())
