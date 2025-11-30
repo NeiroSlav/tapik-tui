@@ -39,6 +39,11 @@ class MessageInputWidget(Widget):
 
     async def on_input_submitted(self, event: Input.Submitted):
         text = self.input.value.strip()
+        # new_id = (
+        #     message_store.test_get_first_id()
+        #     if text.startswith("-")
+        #     else message_store.test_get_last_id()
+        # )
         if text:
             message_store.add_message(
                 Message(
@@ -46,6 +51,7 @@ class MessageInputWidget(Widget):
                     author="Me",
                     time=datetime.now(),
                     is_self=True,
+                    # local_id=new_id,
                 )
             )
             self.input.value = ""

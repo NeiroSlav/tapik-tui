@@ -8,3 +8,4 @@ class Message:
     author: str
     time: datetime
     is_self: bool
+    local_id: int = 0

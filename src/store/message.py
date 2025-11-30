@@ -19,6 +19,7 @@ class MessageStore:
         return self._messages
 
     def add_message(self, msg: Message):
+        msg.local_id = len(self.messages)
         self._messages.append(msg)
         self._notify_subscribers()
         logger(f"New message: {msg.text}")
@@ -30,6 +31,12 @@ class MessageStore:
     def _notify_subscribers(self):
         for cb in self._subscribers:
             cb(self._messages)
+
+    # def test_get_first_id(self) -> int:
+    #     return self.messages[0].local_id
+
+    # def test_get_last_id(self) -> int:
+    #     return self.messages[-1].local_id
 
 
 message_store = MessageStore()
