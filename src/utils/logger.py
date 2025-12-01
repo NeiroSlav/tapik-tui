@@ -1,9 +1,10 @@
-def logger(data: str) -> None:
+from typing import Any
+
+
+def logger(*data: Any) -> None:
     with open("log.txt", "a") as log:
-        log.write(data + "\n")
+        log.write(str(data) + "\n")
 
 
 with open("log.txt", "w") as log:
     log.write("")
-
-logger("\nRESTART\n")

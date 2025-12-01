@@ -15,6 +15,9 @@ class StateStore(Generic[T]):
 
     def set(self, state: T):
         """Установка значения"""
+        if self._state == state:
+            return
+
         self._state = state
         self._notify_subscribers()
 
@@ -22,11 +25,12 @@ class StateStore(Generic[T]):
         """Получение значения"""
         return self._state
 
-    def subscribe(self, callback: SubCallback[T]):
+    def sub(self, callback: SubCallback[T]):
         """Подписка на состояние"""
         self._subs.append(callback)
+        callable(self._state)
 
-    def unsubscribe(self, callback: SubCallback[T]):
+    def unsub(self, callback: SubCallback[T]):
         """Отписка от состояния"""
         self._subs.remove(callback)
 

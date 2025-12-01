@@ -4,7 +4,7 @@ from rich.align import Align
 from rich.text import Text
 from textual.widget import Widget
 
-from store.chat import chat_store
+from store.app_state import app_state
 
 
 class ChatHeaderWidget(Widget):
@@ -26,6 +26,6 @@ class ChatHeaderWidget(Widget):
         self.chat_id = chat_id
 
     def render(self):
-        chat = chat_store.get_chat(self.chat_id)
+        chat = app_state.chats.get_chat(self.chat_id)
         text = Text(chat.name, style="bold")
         return Align.center(text)

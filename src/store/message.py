@@ -32,10 +32,16 @@ class MessageStore:
 
         self._notify_subscribers(updated_chat_ids)
 
-    def subscribe(self, chat_id: UUID, callback: MsgSubscriberCB):
+    def sub(self, chat_id: UUID, callback: MsgSubscriberCB):
         """Подписка виджетов на обновления"""
         self._subs[chat_id].append(callback)
-        logger(str(self._subs))
+        callback(self._messages[chat_id])
+
+    def unsub(self, chat_id: UUID, callback: MsgSubscriberCB):
+        """Подписка виджетов на обновления"""
+        self._subs[chat_id].remove(callback)
+        if not self._subs[chat_id]:
+            del self._subs[chat_id]
 
     def _notify_subscribers(self, chat_ids: set[UUID]):
         for chat_id in chat_ids:
@@ -47,6 +53,3 @@ class MessageStore:
 
     def test_get_last_id(self, chat_id: UUID) -> int:
         return self._messages[chat_id][-1].local_id
-
-
-message_store = MessageStore()

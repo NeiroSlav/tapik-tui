@@ -8,8 +8,7 @@ from textual.widget import Widget
 from textual.widgets import Input
 
 from core.entities import Message
-from store.chat import chat_store
-from store.message import message_store
+from store.app_state import app_state
 
 
 class MessageInputWidget(Widget):
@@ -18,9 +17,7 @@ class MessageInputWidget(Widget):
     DEFAULT_CSS = """
     MessageInputWidget {
         dock: bottom;
-        width: 100%;
         height: 3;
-        padding: 0 1 0 0;
     }
 
     #msg-input {
@@ -61,21 +58,21 @@ class MessageInputWidget(Widget):
             author="Me",
             time=datetime.now(),
             is_self=True,
-            local_id=message_store.test_get_last_id(self.chat_id) + 1,
+            local_id=app_state.messages.test_get_last_id(self.chat_id) + 1,
             chat_id=self.chat_id,
         )
-        message_store.add_messages([message])
-        chat_store.upd_last_msg(self.chat_id, message)
+        app_state.messages.add_messages([message])
+        app_state.chats.upd_last_msg(self.chat_id, message)
 
     def _post_old_msg(self, text: str) -> None:
-        message_store.add_messages(
+        app_state.messages.add_messages(
             [
                 Message(
                     text=text,
                     author="Me",
                     time=datetime.now(),
                     is_self=True,
-                    local_id=message_store.test_get_first_id(self.chat_id) - 1,
+                    local_id=app_state.messages.test_get_first_id(self.chat_id) - 1,
                     chat_id=self.chat_id,
                 )
             ]

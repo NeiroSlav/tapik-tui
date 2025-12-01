@@ -1,8 +1,10 @@
+from typing import Callable
+from uuid import UUID
+
 from textual.events import Click
 from textual.widget import Widget
 
 from core.entities import Chat
-from store.app_state import app_state
 
 
 class ChatPreviewWidget(Widget):
@@ -18,21 +20,32 @@ class ChatPreviewWidget(Widget):
         border: tall $surface 0%;
     }
 
-    ChatPreviewWidget.selected {
+    ChatPreviewWidget.active {
         background: $accent 20%;
         border: tall $accent;
     }
+
+    ChatPreviewWidget.cursor {
+        background: $surface 100%;
+        border: tall $surface 0%;
+    }
+
     """
 
     def __init__(
         self,
         chat: Chat,
-        is_selected: bool,
+        is_active: bool,
+        is_cursor: bool,
+        on_click: Callable[[UUID], None],
     ):
         super().__init__()
         self.chat = chat
-        self.is_selected = is_selected
-        self.set_class(self.is_selected, "selected")
+        self.is_active = is_active
+        self.is_cursor = is_cursor
+        self.on_click_cb = on_click
+        self.set_class(self.is_active, "active")
+        self.set_class(self.is_cursor and not self.is_active, "cursor")
 
     def render(self):
         msg_time = self.chat.last_msg.time.strftime("%H:%M")
@@ -44,4 +57,4 @@ class ChatPreviewWidget(Widget):
         return f"{first_line}\n {second_line}"
 
     def on_click(self, event: Click) -> None:
-        app_state.active_chat_id.set(self.chat.chat_id)
+        self.on_click_cb(self.chat.chat_id)

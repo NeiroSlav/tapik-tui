@@ -1,9 +1,6 @@
 from uuid import UUID
 
 from textual.containers import Vertical
-from textual.events import Mount
-from textual.reactive import reactive
-from textual.widget import Widget
 
 from store.app_state import app_state
 from widgets.active_chat.chat_header import ChatHeaderWidget
@@ -11,39 +8,75 @@ from widgets.active_chat.msg_input import MessageInputWidget
 from widgets.active_chat.msg_list.msg_list import MessageListWidget
 
 
-class InactiveChatWidget(Widget):
-    def render(self):
-        return "Выберите чат"
-
-
 class ActiveChatWidget(Vertical):
     """Активный чат."""
 
-    chat_id = reactive(None)
+    chat_id: UUID | None = None
 
-    def __init__(self):
-        super().__init__()
-        self.chat_id = app_state.active_chat_id.get()
-        app_state.active_chat_id.subscribe(self._chat_id_cb)
+    # Жизненный цикл
+
+    async def on_mount(self):
+        app_state.active_chat_id.sub(self._chat_id_cb)
+        await self._render_active_chat()
+
+    async def on_unmount(self):
+        app_state.active_chat_id.unsub(self._chat_id_cb)
+
+    # Коллбеки
 
     def _chat_id_cb(self, chat_id: UUID | None):
+        """Обновление сообщений из app state"""
         self.chat_id = chat_id
-
-    async def watch_chat_id(self, chat_id: UUID | None):
-        """Перерисовка всех виджетов с новым chat_id"""
         self.call_next(self._render_active_chat)
 
-    async def on_mount(self, event: Mount) -> None:
-        """Действия при монтировании"""
-        await self._render_active_chat()
+    # Отрисовка
 
     async def _render_active_chat(self):
         """Отрисовать все виджеты чат"""
         self.remove_children()
-
         if not self.chat_id:
-            return await self.mount(InactiveChatWidget())
+            return
 
         await self.mount(ChatHeaderWidget(self.chat_id))
         await self.mount(MessageInputWidget(self.chat_id))
         await self.mount(MessageListWidget(self.chat_id))
+
+    # Хендлеры клавиш
+
+    BINDINGS = [
+        ("k", "scroll_up"),
+        ("j", "scroll_down"),
+        #
+        ("ctrl+k", "scroll_page_up"),
+        ("ctrl+j", "scroll_page_down"),
+        #
+        ("ctrl+u", "scroll_page_up"),
+        ("ctrl+d", "scroll_page_down"),
+        #
+        ("i", "enter_input"),
+        ("escape", "exit_input"),
+    ]
+
+    # Сильные прокрутки
+
+    def action_scroll_page_up(self):
+        self.query_one("#msg-list").scroll_page_up()
+
+    def action_scroll_page_down(self):
+        self.query_one("#msg-list").scroll_page_down()
+
+    # Слабая прокрутка
+
+    def action_scroll_up(self):
+        self.query_one("#msg-list").scroll_up()
+
+    def action_scroll_down(self):
+        self.query_one("#msg-list").scroll_down()
+
+    # Поле ввода сообщения
+
+    def action_enter_input(self):
+        self.query_one("#msg-input").focus()
+
+    def action_exit_input(self):
+        self.query_one("#msg-list").focus()

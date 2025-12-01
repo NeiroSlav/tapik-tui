@@ -14,10 +14,6 @@ class ChatStore:
         self._chats: dict[UUID, Chat] = chats
         self._subs: list[ChatSubscriberCB] = []
 
-    @property
-    def chats(self):
-        return self._chats
-
     def add_chat(self, chat: Chat):
         """Добавление сообщения"""
         self._chats[chat.chat_id] = chat
@@ -33,21 +29,23 @@ class ChatStore:
         """Ищет чат по id"""
         return self._chats[chat_id]
 
-    def subscribe(self, callback: ChatSubscriberCB):
+    def sub(self, callback: ChatSubscriberCB):
         """Подписка виджетов на обновления"""
         self._subs.append(callback)
+        callback(self._get_sorted_chats())
+
+    def unsub(self, callback: ChatSubscriberCB):
+        """Отписка виджетов от обновления"""
+        self._subs.remove(callback)
 
     def _notify_subscribers(self):
-        chats = self.get_sorted_chats()
+        chats = self._get_sorted_chats()
         for cb in self._subs:
             cb(chats)
 
-    def get_sorted_chats(self) -> list[Chat]:
+    def _get_sorted_chats(self) -> list[Chat]:
         return sorted(
             self._chats.values(),
             key=lambda c: c.last_msg.time,
             reverse=True,
         )
-
-
-chat_store = ChatStore()
