@@ -1,3 +1,5 @@
+from contextlib import suppress
+
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal
 
@@ -19,8 +21,14 @@ class TapikApp(App[None]):
     # Хендлеры клавиш
 
     BINDINGS = [
+        ("h", "focus_chat_list"),
+        ("l", "focus_msg_list"),
+        #
         ("H", "focus_chat_list"),
         ("L", "focus_msg_list"),
+        #
+        ("i", "enter_input"),
+        ("escape", "exit_input"),
     ]
 
     # Фокусировки
@@ -29,7 +37,15 @@ class TapikApp(App[None]):
         self.query_one("#chat-list").focus()
 
     def action_focus_msg_list(self):
-        try:
+        with suppress(Exception):
             self.query_one("#msg-list").focus()
-        except:
-            pass
+
+    # Поле ввода сообщения
+
+    def action_enter_input(self):
+        with suppress(Exception):
+            self.query_one("#msg-input").focus()
+
+    def action_exit_input(self):
+        with suppress(Exception):
+            self.query_one("#msg-list").focus()

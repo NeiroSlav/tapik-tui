@@ -52,15 +52,21 @@ class SidebarWidget(VerticalScroll):
         self.call_after_refresh(self._render_all_chats)
 
     def _active_chat_id_cb(self, chat_id: UUID | None):
+        """Коллбек обновления active_chat_id из state"""
         self.active_chat_id = chat_id
         self.call_after_refresh(self._render_all_chats)
 
     def _chats_cb(self, chats: list[Chat]):
-        """Коллбек обновления для интеграции в chats store"""
+        """Коллбек обновления chats из state"""
         self.chats = chats
         self.call_after_refresh(self._render_all_chats)
 
-    # Отрисовки при монтировании
+    def _on_chat_click_cb(self, chat_id: UUID):
+        """Коллбек установки active_chat_id в state из виджета чата"""
+        app_state.active_chat_id.set(chat_id)
+        self.cursor_chat_id = chat_id
+
+    # Отрисовка
 
     async def _render_all_chats(self):
         """Полностью перерисовать список."""
@@ -70,7 +76,7 @@ class SidebarWidget(VerticalScroll):
                 chat=chat,
                 is_active=chat.chat_id == self.active_chat_id,
                 is_cursor=chat.chat_id == self.cursor_chat_id,
-                on_click=app_state.active_chat_id.set,
+                on_chat_click=self._on_chat_click_cb,
             )
             await self.mount(widget)
 
@@ -79,6 +85,13 @@ class SidebarWidget(VerticalScroll):
     BINDINGS = [
         ("k", "select_prev"),
         ("j", "select_next"),
+        #
+        ("K", "select_prev_jump"),
+        ("J", "select_next_jump"),
+        #
+        ("ctrl+k", "select_prev_jump"),
+        ("ctrl+j", "select_next_jump"),
+        #
         ("enter", "commit_selected"),
     ]
 
@@ -89,6 +102,12 @@ class SidebarWidget(VerticalScroll):
 
     def action_select_prev(self):
         self._set_new_cursor_chat_id(-1)
+
+    def action_select_next_jump(self):
+        self._set_new_cursor_chat_id(5)
+
+    def action_select_prev_jump(self):
+        self._set_new_cursor_chat_id(-5)
 
     def action_commit_selected(self):
         app_state.active_chat_id.set(self.cursor_chat_id)
@@ -108,5 +127,20 @@ class SidebarWidget(VerticalScroll):
         chat_ids = list(map(lambda c: c.chat_id, self.chats))
         current_index = chat_ids.index(self._get_cursor_id())
         new_index = current_index + index_shift
-        if 0 <= new_index < len(chat_ids):
-            self.cursor_chat_id = chat_ids[new_index]
+        if new_index < 0:
+            new_index = 0
+        if new_index >= len(chat_ids):
+            new_index = len(chat_ids) - 1
+        self.cursor_chat_id = chat_ids[new_index]
+        self._scroll_to_cursor()
+
+    def _scroll_to_cursor(self):
+        """Прокрутить список так, чтобы чат, на котором курсор - был виден"""
+        if self.cursor_chat_id is None:
+            return
+
+        # поиск виджета по chat_id
+        for widget in self.children:
+            if isinstance(widget, ChatPreviewWidget):
+                if widget.chat.chat_id == self.cursor_chat_id:
+                    return self.scroll_to_widget(widget)

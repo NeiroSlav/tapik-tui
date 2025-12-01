@@ -47,14 +47,14 @@ class ActiveChatWidget(Vertical):
         ("k", "scroll_up"),
         ("j", "scroll_down"),
         #
+        ("K", "scroll_page_up"),
+        ("J", "scroll_page_down"),
+        #
         ("ctrl+k", "scroll_page_up"),
         ("ctrl+j", "scroll_page_down"),
         #
         ("ctrl+u", "scroll_page_up"),
         ("ctrl+d", "scroll_page_down"),
-        #
-        ("i", "enter_input"),
-        ("escape", "exit_input"),
     ]
 
     # Сильные прокрутки
@@ -72,11 +72,3 @@ class ActiveChatWidget(Vertical):
 
     def action_scroll_down(self):
         self.query_one("#msg-list").scroll_down()
-
-    # Поле ввода сообщения
-
-    def action_enter_input(self):
-        self.query_one("#msg-input").focus()
-
-    def action_exit_input(self):
-        self.query_one("#msg-list").focus()

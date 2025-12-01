@@ -37,13 +37,13 @@ class ChatPreviewWidget(Widget):
         chat: Chat,
         is_active: bool,
         is_cursor: bool,
-        on_click: Callable[[UUID], None],
+        on_chat_click: Callable[[UUID], None],
     ):
         super().__init__()
         self.chat = chat
         self.is_active = is_active
         self.is_cursor = is_cursor
-        self.on_click_cb = on_click
+        self.on_click_cb = on_chat_click
         self.set_class(self.is_active, "active")
         self.set_class(self.is_cursor and not self.is_active, "cursor")
 

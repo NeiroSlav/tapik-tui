@@ -25,7 +25,6 @@ class MessageBubbleWidget(Widget):
         border: tall $surface 0%;
     }
     """
-    # content-align-horizontal: left;
 
     text = reactive("")
     author = reactive("")
@@ -39,7 +38,6 @@ class MessageBubbleWidget(Widget):
         self.timestamp = message.time.strftime("%H:%M")
         self.is_self = message.is_self
 
-        # Для CSS: имя класса (как пропс)
         self.set_class(self.is_self, "self")
         self.set_class(not self.is_self, "other")
 
