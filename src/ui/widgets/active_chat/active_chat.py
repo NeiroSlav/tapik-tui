@@ -3,9 +3,9 @@ from uuid import UUID
 from textual.containers import Vertical
 
 from store.app_state import app_state
-from widgets.active_chat.chat_header import ChatHeaderWidget
-from widgets.active_chat.msg_input import MessageInputWidget
-from widgets.active_chat.msg_list.msg_list import MessageListWidget
+from ui.widgets.active_chat.chat_header import ChatHeaderWidget
+from ui.widgets.active_chat.msg_input import MessageInputWidget
+from ui.widgets.active_chat.msg_list.msg_list import MessageListWidget
 
 
 class ActiveChatWidget(Vertical):

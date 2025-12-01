@@ -1,14 +1,13 @@
 from contextlib import suppress
 
-from textual.app import App, ComposeResult
+from textual.app import ComposeResult
 from textual.containers import Horizontal
 
-from widgets.active_chat.active_chat import ActiveChatWidget
-from widgets.chat_list.chat_list import SidebarWidget
+from ui.widgets.active_chat.active_chat import ActiveChatWidget
+from ui.widgets.chat_list.chat_list import SidebarWidget
 
 
-class TapikApp(App[None]):
-    """Корневой компонент приложения"""
+class MessengerScreen(Horizontal):
 
     def compose(self) -> ComposeResult:
         """Called to add widgets to the app."""
@@ -39,6 +38,10 @@ class TapikApp(App[None]):
     def action_focus_msg_list(self):
         with suppress(Exception):
             self.query_one("#msg-list").focus()
+            self.query_one(
+                "#chat-list",
+                SidebarWidget,
+            ).cursor_chat_id = None
 
     # Поле ввода сообщения
 

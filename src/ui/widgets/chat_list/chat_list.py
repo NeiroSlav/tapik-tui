@@ -5,7 +5,7 @@ from textual.reactive import reactive
 
 from core.entities import Chat
 from store.app_state import app_state
-from widgets.chat_list.chat_preview import ChatPreviewWidget
+from ui.widgets.chat_list.chat_preview import ChatPreviewWidget
 
 
 class SidebarWidget(VerticalScroll):
@@ -89,10 +89,10 @@ class SidebarWidget(VerticalScroll):
         ("K", "select_prev_jump"),
         ("J", "select_next_jump"),
         #
-        ("ctrl+k", "select_prev_jump"),
-        ("ctrl+j", "select_next_jump"),
+        ("ctrl+k", "set_prev"),
+        ("ctrl+j", "set_next"),
         #
-        ("enter", "commit_selected"),
+        ("enter", "set_selected"),
     ]
 
     # Работа с курсором
@@ -103,13 +103,21 @@ class SidebarWidget(VerticalScroll):
     def action_select_prev(self):
         self._set_new_cursor_chat_id(-1)
 
+    def action_set_next(self):
+        self._set_new_cursor_chat_id(1)
+        app_state.active_chat_id.set(self.cursor_chat_id)
+
+    def action_set_prev(self):
+        self._set_new_cursor_chat_id(-1)
+        app_state.active_chat_id.set(self.cursor_chat_id)
+
     def action_select_next_jump(self):
         self._set_new_cursor_chat_id(5)
 
     def action_select_prev_jump(self):
         self._set_new_cursor_chat_id(-5)
 
-    def action_commit_selected(self):
+    def action_set_selected(self):
         app_state.active_chat_id.set(self.cursor_chat_id)
 
     # Утилиты курсора

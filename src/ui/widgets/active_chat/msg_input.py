@@ -3,7 +3,6 @@ from uuid import UUID
 
 from textual.app import ComposeResult
 from textual.containers import Horizontal
-from textual.reactive import reactive
 from textual.widget import Widget
 from textual.widgets import Input
 
@@ -12,7 +11,6 @@ from store.app_state import app_state
 
 
 class MessageInputWidget(Widget):
-    text = reactive("")
 
     DEFAULT_CSS = """
     MessageInputWidget {
@@ -37,9 +35,6 @@ class MessageInputWidget(Widget):
             self.input = Input(placeholder="Введите сообщение...", id="msg-input")
             yield self.input
 
-    async def on_input_changed(self, event: Input.Changed) -> None:
-        self.text = event.value
-
     async def on_input_submitted(self, event: Input.Submitted):
         text = self.input.value.strip()
         if text:
@@ -55,9 +50,8 @@ class MessageInputWidget(Widget):
     def _post_new_msg(self, text: str) -> None:
         message = Message(
             text=text,
-            author="Me",
+            user_id=app_state.current_user_id,
             time=datetime.now(),
-            is_self=True,
             local_id=app_state.messages.test_get_last_id(self.chat_id) + 1,
             chat_id=self.chat_id,
         )
@@ -69,9 +63,8 @@ class MessageInputWidget(Widget):
             [
                 Message(
                     text=text,
-                    author="Me",
+                    user_id=app_state.current_user_id,
                     time=datetime.now(),
-                    is_self=True,
                     local_id=app_state.messages.test_get_first_id(self.chat_id) - 1,
                     chat_id=self.chat_id,
                 )

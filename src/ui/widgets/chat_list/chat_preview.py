@@ -5,6 +5,7 @@ from textual.events import Click
 from textual.widget import Widget
 
 from core.entities import Chat
+from utils.parsers import get_sender_name
 
 
 class ChatPreviewWidget(Widget):
@@ -51,7 +52,8 @@ class ChatPreviewWidget(Widget):
         msg_time = self.chat.last_msg.time.strftime("%H:%M")
         first_line = f"[b]{self.chat.name:<20}[/b] • {msg_time}"
 
-        msg_preview = f"{self.chat.last_msg.author}: {self.chat.last_msg.text}"
+        sender_name = get_sender_name(self.chat.last_msg)
+        msg_preview = f"{sender_name}: {self.chat.last_msg.text}"
         second_line = msg_preview[0:50] if len(msg_preview) > 50 else msg_preview
 
         return f"{first_line}\n {second_line}"

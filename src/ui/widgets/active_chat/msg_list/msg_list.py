@@ -6,7 +6,7 @@ from textual.widget import Widget
 
 from core.entities import Message
 from store.app_state import app_state
-from widgets.active_chat.msg_list.msg_row import MessageRowWidget
+from ui.widgets.active_chat.msg_list.msg_row import MessageRowWidget
 
 
 class MessageListWidget(VerticalScroll):

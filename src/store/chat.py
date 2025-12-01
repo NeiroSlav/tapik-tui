@@ -14,8 +14,8 @@ class ChatStore:
         self._chats: dict[UUID, Chat] = chats
         self._subs: list[ChatSubscriberCB] = []
 
-    def add_chat(self, chat: Chat):
-        """Добавление сообщения"""
+    def set_chat(self, chat: Chat):
+        """Добавление чата"""
         self._chats[chat.chat_id] = chat
         self._notify_subscribers()
 

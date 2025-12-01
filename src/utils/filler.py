@@ -2,10 +2,13 @@ import random
 from datetime import datetime, timedelta
 from uuid import UUID, uuid4
 
-from core.entities import Chat, Message
+from core.entities import Chat, Message, User
 
 msg_words = "такие вот слова для сообщения".split()
 chat_words = "просто чат группа наше".split()
+
+first_names = "Иван Богдан Артём Григорий Женя".split()
+last_names = "Желебев Попов Селезнёв Джиджа Немцов".split()
 
 
 def generate_text() -> str:
@@ -23,17 +26,34 @@ def create_messages(chat_id: UUID) -> list[Message]:
         Message(
             local_id=i + 20,
             chat_id=chat_id,
+            user_id=random.choice(_user_ids),
             text=generate_text(),
-            author="Bibus" if i % 3 else "Bobus",
             time=datetime.now() + timedelta(minutes=i - 30),
-            is_self=not bool(i % 3),
         )
         for i in range(20)
     ]
 
 
+USERNAMES = "neiroslav jjake urii shampun qrabbit poter abobus libron".split()
+
 CHAT_IDS = set(uuid4() for _ in range(20))
 
+
+_users: list[User] = [
+    User(
+        user_id=uuid4(),
+        username=username,
+        first_name=random.choice(first_names),
+        last_name=random.choice(last_names),
+    )
+    for username in USERNAMES
+]
+
+users: dict[UUID, User] = {u.user_id: u for u in _users}
+
+_user_ids: tuple[UUID, ...] = tuple(users.keys())
+
+current_user_id = _user_ids[0]
 
 messages: dict[UUID, list[Message]] = {
     chat_id: create_messages(chat_id) for chat_id in CHAT_IDS
