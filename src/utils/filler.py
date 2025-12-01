@@ -25,7 +25,7 @@ def create_messages(chat_id: UUID) -> list[Message]:
             chat_id=chat_id,
             text=generate_text(),
             author="Bibus" if i % 3 else "Bobus",
-            time=datetime.now() + timedelta(minutes=i),
+            time=datetime.now() + timedelta(minutes=i - 30),
             is_self=not bool(i % 3),
         )
         for i in range(20)

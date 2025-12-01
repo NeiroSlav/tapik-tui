@@ -1,13 +1,15 @@
+from textual.events import Click
 from textual.widget import Widget
 
 from core.entities import Chat
+from store.app_state import app_state
 
 
-class ChatWidget(Widget):
+class ChatPreviewWidget(Widget):
     """Один блок сообщения."""
 
     DEFAULT_CSS = """
-    ChatWidget {
+    ChatPreviewWidget {
         width: 100%;
         height: 4;
         padding: 0 2;
@@ -16,13 +18,17 @@ class ChatWidget(Widget):
         border: tall $surface 0%;
     }
 
-    ChatWidget.selected {
+    ChatPreviewWidget.selected {
         background: $accent 20%;
         border: tall $accent;
     }
     """
 
-    def __init__(self, chat: Chat, is_selected: bool):
+    def __init__(
+        self,
+        chat: Chat,
+        is_selected: bool,
+    ):
         super().__init__()
         self.chat = chat
         self.is_selected = is_selected
@@ -36,3 +42,6 @@ class ChatWidget(Widget):
         second_line = msg_preview[0:50] if len(msg_preview) > 50 else msg_preview
 
         return f"{first_line}\n {second_line}"
+
+    def on_click(self, event: Click) -> None:
+        app_state.active_chat_id.set(self.chat.chat_id)

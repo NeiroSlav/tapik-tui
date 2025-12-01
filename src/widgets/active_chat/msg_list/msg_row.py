@@ -1,7 +1,7 @@
 from textual.containers import Horizontal
 
 from core.entities import Message
-from widgets.active_chat.msg_list.msg import MessageWidget
+from widgets.active_chat.msg_list.msg_bbl import MessageBubbleWidget
 
 
 class MessageRowWidget(Horizontal):
@@ -30,4 +30,4 @@ class MessageRowWidget(Horizontal):
 
     def compose(self):
         # сам bubble сообщения
-        yield MessageWidget(self.message)
+        yield MessageBubbleWidget(self.message)

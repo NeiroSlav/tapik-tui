@@ -35,6 +35,7 @@ class MessageStore:
     def subscribe(self, chat_id: UUID, callback: MsgSubscriberCB):
         """Подписка виджетов на обновления"""
         self._subs[chat_id].append(callback)
+        logger(str(self._subs))
 
     def _notify_subscribers(self, chat_ids: set[UUID]):
         for chat_id in chat_ids:

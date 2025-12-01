@@ -29,6 +29,10 @@ class ChatStore:
             chat.last_msg = msg
             self._notify_subscribers()
 
+    def get_chat(self, chat_id: UUID) -> Chat:
+        """Ищет чат по id"""
+        return self._chats[chat_id]
+
     def subscribe(self, callback: ChatSubscriberCB):
         """Подписка виджетов на обновления"""
         self._subs.append(callback)
@@ -39,7 +43,11 @@ class ChatStore:
             cb(chats)
 
     def get_sorted_chats(self) -> list[Chat]:
-        return sorted(self._chats.values(), key=lambda c: c.last_msg.time)
+        return sorted(
+            self._chats.values(),
+            key=lambda c: c.last_msg.time,
+            reverse=True,
+        )
 
 
 chat_store = ChatStore()

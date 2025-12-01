@@ -4,9 +4,10 @@ from textual.containers import VerticalScroll
 from textual.reactive import reactive
 
 from core.entities import Chat
+from store.app_state import app_state
 from store.chat import chat_store
 from utils.logger import logger
-from widgets.sidebar.chat import ChatWidget
+from widgets.sidebar.chat_preview import ChatPreviewWidget
 
 
 class SidebarWidget(VerticalScroll):
@@ -23,11 +24,21 @@ class SidebarWidget(VerticalScroll):
     chats = reactive([])  # список объектов сообщений
     selected_chat_id = reactive(None)
 
-    def __init__(self, selected_chat_id: UUID):
+    def __init__(self):
         super().__init__()
+
         self.chats = chat_store.get_sorted_chats()
-        self.selected_chat_id = selected_chat_id
         chat_store.subscribe(self._subscibe_cb)
+
+        self.selected_chat_id = app_state.active_chat_id.get()
+        app_state.active_chat_id.subscribe(self._chat_id_cb)
+
+    def _chat_id_cb(self, chat_id: UUID | None):
+        self.selected_chat_id = chat_id
+
+    def watch_selected_chat_id(self, chat_id: UUID | None):
+        """Перерисовка всех виджетов с новым chat_id"""
+        self.call_next(self._render_all_chats)
 
     # Отрисовки при изменении
 
@@ -47,5 +58,6 @@ class SidebarWidget(VerticalScroll):
         """Полностью перерисовать список."""
         self.remove_children()
         for chat in self.chats:
-            widget = ChatWidget(chat, chat.chat_id == self.selected_chat_id)
+            is_selected = chat.chat_id == self.selected_chat_id
+            widget = ChatPreviewWidget(chat, is_selected)
             await self.mount(widget)

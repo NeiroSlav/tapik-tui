@@ -4,23 +4,23 @@ from textual.widget import Widget
 from core.entities import Message
 
 
-class MessageWidget(Widget):
+class MessageBubbleWidget(Widget):
     """Один блок сообщения."""
 
     DEFAULT_CSS = """
-    MessageWidget {
+    MessageBubbleWidget {
         max-width: 80%;
         width: auto;
         height: auto;
         padding: 0 2;
     }
 
-    MessageWidget.self {
+    MessageBubbleWidget.self {
         background: $accent 20%;
         border: tall $accent;
     }
 
-    MessageWidget.other {
+    MessageBubbleWidget.other {
         background: $surface 50%;
         border: tall $surface 0%;
     }

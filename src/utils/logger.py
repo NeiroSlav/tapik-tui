@@ -3,4 +3,7 @@ def logger(data: str) -> None:
         log.write(data + "\n")
 
 
+with open("log.txt", "w") as log:
+    log.write("")
+
 logger("\nRESTART\n")
