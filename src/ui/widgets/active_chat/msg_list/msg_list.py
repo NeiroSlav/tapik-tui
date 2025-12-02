@@ -5,7 +5,8 @@ from textual.reactive import reactive
 from textual.widget import Widget
 
 from core.entities import Message
-from store.app_state import app_state
+from store import RootStore
+from ui.viewmodels.message_vm import MessageVM
 from ui.widgets.active_chat.msg_list.msg_row import MessageRowWidget
 
 
@@ -34,21 +35,22 @@ class MessageListWidget(VerticalScroll):
 
     messages = reactive([])  # список объектов сообщений
 
-    def __init__(self, chat_id: UUID):
+    def __init__(self, root_store: RootStore, chat_id: UUID):
         super().__init__(id="msg-list")
+        self.root_store = root_store
         self.chat_id = chat_id
 
     # Жизненный цикл
 
     async def on_mount(self):
-        app_state.messages.sub(self.chat_id, self._messages_cb)
+        self.root_store.messages.sub(self.chat_id, self._messages_cb)
         self._message_widgets: dict[int, Widget] = {}
         self._oldest_msg_id = self.messages[0].local_id
         self._newest_msg_id = self.messages[-1].local_id
         await self._render_all_messages()
 
     async def on_unmount(self):
-        app_state.messages.unsub(self.chat_id, self._messages_cb)
+        self.root_store.messages.unsub(self.chat_id, self._messages_cb)
 
     # Коллбеки
 
@@ -76,7 +78,8 @@ class MessageListWidget(VerticalScroll):
     async def _render_newer_diffs(self, msgs: list[Message]):
         """Отрисовка новых сообщений"""
         for msg in msgs:
-            widget = MessageRowWidget(msg)
+            msg_vm = MessageVM(msg, self.root_store)
+            widget = MessageRowWidget(msg_vm)
             self._message_widgets[msg.local_id] = widget
             await self.mount(widget)
 
@@ -84,7 +87,8 @@ class MessageListWidget(VerticalScroll):
         """Отрисовка старых сообщений"""
         oldest_widget = self._message_widgets[self._oldest_msg_id]
         for msg in msgs:
-            widget = MessageRowWidget(msg)
+            msg_vm = MessageVM(msg, self.root_store)
+            widget = MessageRowWidget(msg_vm)
             self._message_widgets[msg.local_id] = widget
             await self.mount(widget, before=oldest_widget)
             oldest_widget = widget
@@ -93,7 +97,8 @@ class MessageListWidget(VerticalScroll):
         """Полностью перерисовать список"""
         self.remove_children()
         for msg in self.messages:
-            widget = MessageRowWidget(msg)
+            msg_vm = MessageVM(msg, self.root_store)
+            widget = MessageRowWidget(msg_vm)
             self._message_widgets[msg.local_id] = widget
             await self.mount(widget)
         self.scroll_end(animate=False)

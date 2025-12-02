@@ -1,7 +1,6 @@
 from textual.widget import Widget
 
-from core.entities import Message
-from utils.parsers import get_sender_name, is_self_message
+from ui.viewmodels.message_vm import MessageVM
 
 
 class MessageBubbleWidget(Widget):
@@ -26,16 +25,16 @@ class MessageBubbleWidget(Widget):
     }
     """
 
-    def __init__(self, message: Message):
+    def __init__(self, message_vm: MessageVM):
         super().__init__()
-        self.text = message.text
-        self.timestamp = message.time.strftime("%H:%M")
-        self.is_self = is_self_message(message)
-        self.sender_name = get_sender_name(message, True)
+        self.message_vm = message_vm
 
-        self.set_class(self.is_self, "self")
-        self.set_class(not self.is_self, "other")
+        is_self = self.message_vm.is_self
+        self.set_class(is_self, "self")
+        self.set_class(not is_self, "other")
 
     def render(self):
-        # Можно рисовать красивее, с разметкой
-        return f"[b]{self.sender_name}[/b] • {self.timestamp}\n{self.text}"
+        return (
+            f"[b]{self.message_vm.sender_name}[/b] • {self.message_vm.str_time}\n"
+            f"{self.message_vm.full_text}"
+        )

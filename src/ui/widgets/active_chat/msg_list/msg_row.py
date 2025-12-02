@@ -1,8 +1,7 @@
 from textual.containers import Horizontal
 
-from core.entities import Message
+from ui.viewmodels.message_vm import MessageVM
 from ui.widgets.active_chat.msg_list.msg_bbl import MessageBubbleWidget
-from utils.parsers import is_self_message
 
 
 class MessageRowWidget(Horizontal):
@@ -21,15 +20,15 @@ class MessageRowWidget(Horizontal):
     }
     """
 
-    def __init__(self, message: Message):
+    def __init__(self, message_vm: MessageVM):
         super().__init__()
-        self.message = message
+        self.message_vm = message_vm
 
         # класс для выравнивания
-        is_self = is_self_message(message)
+        is_self = self.message_vm.is_self
         self.set_class(is_self, "self")
         self.set_class(not is_self, "other")
 
     def compose(self):
         # сам bubble сообщения
-        yield MessageBubbleWidget(self.message)
+        yield MessageBubbleWidget(self.message_vm)

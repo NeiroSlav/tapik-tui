@@ -7,9 +7,6 @@ from core.entities import Chat, Message, User
 msg_words = "такие вот слова для сообщения".split()
 chat_words = "просто чат группа наше".split()
 
-first_names = "Иван Богдан Артём Григорий Женя".split()
-last_names = "Желебев Попов Селезнёв Джиджа Немцов".split()
-
 
 def generate_text() -> str:
     selected_words = random.choices(msg_words, k=random.randint(2, 20))
@@ -34,7 +31,9 @@ def create_messages(chat_id: UUID) -> list[Message]:
     ]
 
 
-USERNAMES = "neiroslav jjake urii shampun qrabbit poter abobus libron".split()
+first_names = "Иван Богдан Артём Григорий Женя".split()
+last_names = "Желебев Попов Селезнёв Джиджа Немцов".split()
+USERNAMES = "neiroslav jjake urii shampun qrabbit".split()
 
 CHAT_IDS = set(uuid4() for _ in range(20))
 
@@ -43,10 +42,10 @@ _users: list[User] = [
     User(
         user_id=uuid4(),
         username=username,
-        first_name=random.choice(first_names),
-        last_name=random.choice(last_names),
+        first_name=first_names[i],
+        last_name=last_names[i],
     )
-    for username in USERNAMES
+    for i, username in enumerate(USERNAMES)
 ]
 
 users: dict[UUID, User] = {u.user_id: u for u in _users}

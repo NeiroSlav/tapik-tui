@@ -1,20 +1,26 @@
 from contextlib import suppress
+from uuid import UUID
 
 from textual.app import ComposeResult
 from textual.containers import Horizontal
 
+from store import RootStore
 from ui.widgets.active_chat.active_chat import ActiveChatWidget
 from ui.widgets.chat_list.chat_list import SidebarWidget
 
 
 class MessengerScreen(Horizontal):
 
+    def __init__(self, current_user_id: UUID):
+        super().__init__()
+        self.root_store = RootStore(current_user_id)
+
     def compose(self) -> ComposeResult:
         """Called to add widgets to the app."""
 
         yield Horizontal(
-            SidebarWidget(),
-            ActiveChatWidget(),
+            SidebarWidget(self.root_store),
+            ActiveChatWidget(self.root_store),
         )
 
     # Хендлеры клавиш

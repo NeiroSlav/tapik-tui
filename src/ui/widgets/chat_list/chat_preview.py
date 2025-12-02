@@ -4,8 +4,7 @@ from uuid import UUID
 from textual.events import Click
 from textual.widget import Widget
 
-from core.entities import Chat
-from utils.parsers import get_sender_name
+from ui.viewmodels.chat_vm import ChatVM
 
 
 class ChatPreviewWidget(Widget):
@@ -35,13 +34,13 @@ class ChatPreviewWidget(Widget):
 
     def __init__(
         self,
-        chat: Chat,
+        chat_vm: ChatVM,
         is_active: bool,
         is_cursor: bool,
         on_chat_click: Callable[[UUID], None],
     ):
         super().__init__()
-        self.chat = chat
+        self.chat_vm = chat_vm
         self.is_active = is_active
         self.is_cursor = is_cursor
         self.on_click_cb = on_chat_click
@@ -49,14 +48,17 @@ class ChatPreviewWidget(Widget):
         self.set_class(self.is_cursor and not self.is_active, "cursor")
 
     def render(self):
-        msg_time = self.chat.last_msg.time.strftime("%H:%M")
-        first_line = f"[b]{self.chat.name:<20}[/b] • {msg_time}"
+        msg_time = self.chat_vm.message_vm.str_time
+        first_line = f"[b]{self.chat_vm.name:<20}[/b] • {msg_time}"
 
-        sender_name = get_sender_name(self.chat.last_msg)
-        msg_preview = f"{sender_name}: {self.chat.last_msg.text}"
+        sender_name = self.chat_vm.message_vm.sender_name
+        msg_preview = f"{sender_name}: {self.chat_vm.message_vm.full_text}"
         second_line = msg_preview[0:50] if len(msg_preview) > 50 else msg_preview
 
         return f"{first_line}\n {second_line}"
 
     def on_click(self, event: Click) -> None:
-        self.on_click_cb(self.chat.chat_id)
+        self.on_click_cb(self.get_chat_id())
+
+    def get_chat_id(self) -> UUID:
+        return self.chat_vm.chat.chat_id

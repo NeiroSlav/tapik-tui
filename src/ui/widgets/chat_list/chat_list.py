@@ -4,7 +4,8 @@ from textual.containers import VerticalScroll
 from textual.reactive import reactive
 
 from core.entities import Chat
-from store.app_state import app_state
+from store import RootStore
+from ui.viewmodels.chat_vm import ChatVM
 from ui.widgets.chat_list.chat_preview import ChatPreviewWidget
 
 
@@ -28,8 +29,10 @@ class SidebarWidget(VerticalScroll):
 
     cursor_chat_id = reactive(None)
 
-    def __init__(self):
+    def __init__(self, root_store: RootStore):
         super().__init__(id="chat-list")
+
+        self.root_store = root_store
 
         self.chats: list[Chat] = []
         self.active_chat_id: UUID | None = None
@@ -38,13 +41,13 @@ class SidebarWidget(VerticalScroll):
     # Жизненный цикл
 
     async def on_mount(self):
-        app_state.chats.sub(self._chats_cb)
-        app_state.active_chat_id.sub(self._active_chat_id_cb)
+        self.root_store.chats.sub(self._chats_cb)
+        self.root_store.active_chat_id.sub(self._active_chat_id_cb)
         await self._render_all_chats()
 
     async def on_unmount(self):
-        app_state.chats.unsub(self._chats_cb)
-        app_state.active_chat_id.unsub(self._active_chat_id_cb)
+        self.root_store.chats.unsub(self._chats_cb)
+        self.root_store.active_chat_id.unsub(self._active_chat_id_cb)
 
     # Коллбеки
 
@@ -63,7 +66,7 @@ class SidebarWidget(VerticalScroll):
 
     def _on_chat_click_cb(self, chat_id: UUID):
         """Коллбек установки active_chat_id в state из виджета чата"""
-        app_state.active_chat_id.set(chat_id)
+        self.root_store.active_chat_id.set(chat_id)
         self.cursor_chat_id = chat_id
 
     # Отрисовка
@@ -73,7 +76,7 @@ class SidebarWidget(VerticalScroll):
         self.remove_children()
         for chat in self.chats:
             widget = ChatPreviewWidget(
-                chat=chat,
+                chat_vm=ChatVM(chat, self.root_store),
                 is_active=chat.chat_id == self.active_chat_id,
                 is_cursor=chat.chat_id == self.cursor_chat_id,
                 on_chat_click=self._on_chat_click_cb,
@@ -105,11 +108,11 @@ class SidebarWidget(VerticalScroll):
 
     def action_set_next(self):
         self._set_new_cursor_chat_id(1)
-        app_state.active_chat_id.set(self.cursor_chat_id)
+        self.root_store.active_chat_id.set(self.cursor_chat_id)
 
     def action_set_prev(self):
         self._set_new_cursor_chat_id(-1)
-        app_state.active_chat_id.set(self.cursor_chat_id)
+        self.root_store.active_chat_id.set(self.cursor_chat_id)
 
     def action_select_next_jump(self):
         self._set_new_cursor_chat_id(5)
@@ -118,7 +121,7 @@ class SidebarWidget(VerticalScroll):
         self._set_new_cursor_chat_id(-5)
 
     def action_set_selected(self):
-        app_state.active_chat_id.set(self.cursor_chat_id)
+        self.root_store.active_chat_id.set(self.cursor_chat_id)
 
     # Утилиты курсора
 
@@ -150,5 +153,5 @@ class SidebarWidget(VerticalScroll):
         # поиск виджета по chat_id
         for widget in self.children:
             if isinstance(widget, ChatPreviewWidget):
-                if widget.chat.chat_id == self.cursor_chat_id:
+                if widget.get_chat_id() == self.cursor_chat_id:
                     return self.scroll_to_widget(widget)

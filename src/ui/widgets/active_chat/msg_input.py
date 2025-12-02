@@ -7,7 +7,7 @@ from textual.widget import Widget
 from textual.widgets import Input
 
 from core.entities import Message
-from store.app_state import app_state
+from store import RootStore
 
 
 class MessageInputWidget(Widget):
@@ -26,8 +26,9 @@ class MessageInputWidget(Widget):
     }
     """
 
-    def __init__(self, chat_id: UUID):
+    def __init__(self, root_store: RootStore, chat_id: UUID):
         super().__init__()
+        self.root_store = root_store
         self.chat_id = chat_id
 
     def compose(self) -> ComposeResult:
@@ -50,22 +51,23 @@ class MessageInputWidget(Widget):
     def _post_new_msg(self, text: str) -> None:
         message = Message(
             text=text,
-            user_id=app_state.current_user_id,
+            user_id=self.root_store.current_user_id.get(),
             time=datetime.now(),
-            local_id=app_state.messages.test_get_last_id(self.chat_id) + 1,
+            local_id=self.root_store.messages.test_get_last_id(self.chat_id) + 1,
             chat_id=self.chat_id,
         )
-        app_state.messages.add_messages([message])
-        app_state.chats.upd_last_msg(self.chat_id, message)
+        self.root_store.messages.add_messages([message])
+        self.root_store.chats.upd_last_msg(self.chat_id, message)
 
     def _post_old_msg(self, text: str) -> None:
-        app_state.messages.add_messages(
+        self.root_store.messages.add_messages(
             [
                 Message(
                     text=text,
-                    user_id=app_state.current_user_id,
+                    user_id=self.root_store.current_user_id.get(),
                     time=datetime.now(),
-                    local_id=app_state.messages.test_get_first_id(self.chat_id) - 1,
+                    local_id=self.root_store.messages.test_get_first_id(self.chat_id)
+                    - 1,
                     chat_id=self.chat_id,
                 )
             ]
