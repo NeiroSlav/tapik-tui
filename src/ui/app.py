@@ -17,7 +17,7 @@ class TapikApp(App[None]):
         super().__init__()
         self.root_store = RootStore()
         self.root_actions = RootActions(self.root_store)
-        self.root_store.current_user_id.sub(self._current_user_id_cb)
+        self.root_store.auth.current_user_id.sub(self._current_user_id_cb)
 
     def _current_user_id_cb(self, current_user_id: UUID | None):
         self.current_user_id = current_user_id
@@ -25,11 +25,11 @@ class TapikApp(App[None]):
 
     async def on_mount(self):
         self.install_screen(  # type: ignore
-            screen=LoginScreen(self.root_actions),
+            screen=LoginScreen(),
             name="login",
         )
         self.install_screen(  # type: ignore
-            screen=MessengerScreen(self.root_store),
+            screen=MessengerScreen(),
             name="messenger",
         )
         await self._set_needed_screen()

@@ -9,21 +9,21 @@ class MessageVM:
 
     @property
     def sender_name(self) -> str:
-        if self.message.user_id == self.root_store.current_user_id.get():
+        if self.is_self:
             return "Вы"
         user = self.root_store.users.get_user(self.message.user_id)
         return user.get_full_name()
 
     @property
     def sender_short_name(self) -> str:
-        if self.message.user_id == self.root_store.current_user_id.get():
+        if self.is_self:
             return "Вы"
         user = self.root_store.users.get_user(self.message.user_id)
         return user.get_short_name()
 
     @property
     def is_self(self) -> bool:
-        return self.message.user_id == self.root_store.current_user_id.get()
+        return self.message.user_id == self.root_store.auth.get_user_id_strict()
 
     @property
     def str_time(self) -> str:

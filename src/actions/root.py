@@ -15,7 +15,7 @@ class RootActions:
         if not users:
             return
 
-        self.root_store.current_user_id.set(users[0].user_id)
+        self.root_store.auth.current_user_id.set(users[0].user_id)
 
     def select_chat(self, chat_id: UUID):
         self.root_store.active_chat_id.set(chat_id)
@@ -23,7 +23,7 @@ class RootActions:
     def send_message(self, chat_id: UUID, text: str):
         message = Message(
             text=text,
-            user_id=self.root_store.current_user_id_strict(),
+            user_id=self.root_store.auth.get_user_id_strict(),
             time=datetime.now(),
             local_id=self.root_store.messages.test_get_last_id(chat_id) + 1,
             chat_id=chat_id,
