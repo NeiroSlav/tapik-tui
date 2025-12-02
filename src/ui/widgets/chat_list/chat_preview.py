@@ -52,7 +52,7 @@ class ChatPreviewWidget(Widget):
         first_line = f"[b]{self.chat_vm.name:<20}[/b] • {msg_time}"
 
         sender_name = self.chat_vm.message_vm.sender_name
-        msg_preview = f"{sender_name}: {self.chat_vm.message_vm.full_text}"
+        msg_preview = f"{sender_name}: {self.chat_vm.message_vm.str_content}"
         second_line = msg_preview[0:50] if len(msg_preview) > 50 else msg_preview
 
         return f"{first_line}\n {second_line}"

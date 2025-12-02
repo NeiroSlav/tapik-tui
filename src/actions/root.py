@@ -1,7 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
-from core.entities import Message
+from core.entities import Message, TextContent
 from store.root import RootStore
 
 
@@ -22,14 +22,14 @@ class RootActions:
 
     def send_message(self, chat_id: UUID, text: str):
         message = Message(
-            text=text,
+            content=TextContent(text=text),
             user_id=self.root_store.auth.get_user_id_strict(),
-            time=datetime.now(),
+            created_at=datetime.now(tz=timezone.utc),
             local_id=self.root_store.messages.test_get_last_id(chat_id) + 1,
             chat_id=chat_id,
         )
         self.root_store.messages.add_messages([message])
-        self.root_store.chats.upd_last_msg(chat_id, message)
+        self.root_store.chats.upd_last_message(chat_id, message)
 
     # def _post_old_msg(self, text: str) -> None:
     #     self.root_store.messages.add_messages(

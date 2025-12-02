@@ -14,15 +14,16 @@ class ChatStore:
         self._chats: dict[UUID, Chat] = chats
         self._subs: list[ChatSubscriberCB] = []
 
-    def set_chat(self, chat: Chat):
+    def add_chats(self, chats: list[Chat]):
         """Добавление чата"""
-        self._chats[chat.chat_id] = chat
+        for c in chats:
+            self._chats[c.chat_id] = c
         self._notify_subscribers()
 
-    def upd_last_msg(self, chat_id: UUID, msg: Message):
+    def upd_last_message(self, chat_id: UUID, msg: Message):
         """Обновление последнего сообщения в чате"""
         if chat := self._chats.get(chat_id):
-            chat.last_msg = msg
+            chat.last_message = msg
             self._notify_subscribers()
 
     def get_chat(self, chat_id: UUID) -> Chat:
@@ -46,6 +47,6 @@ class ChatStore:
     def _get_sorted_chats(self) -> list[Chat]:
         return sorted(
             self._chats.values(),
-            key=lambda c: c.last_msg.time,
+            key=lambda c: c.last_message.created_at,
             reverse=True,
         )

@@ -1,4 +1,4 @@
-from core.entities import Message
+from core.entities import InfoActionType, InfoContent, Message, TextContent
 from store import RootStore
 
 
@@ -27,8 +27,20 @@ class MessageVM:
 
     @property
     def str_time(self) -> str:
-        return self.message.time.strftime("%H:%M")
+        return self.message.created_at.strftime("%H:%M")
 
     @property
-    def full_text(self) -> str:
-        return self.message.text
+    def str_content(self) -> str:
+        content = self.message.content
+        if isinstance(content, TextContent):
+            return content.text
+        if isinstance(content, InfoContent):  # type: ignore
+            return self.info_content_to_str(content)
+        return "unsupported content type"
+
+    def info_content_to_str(self, content: InfoContent) -> str:
+        match content.action_type:
+            case InfoActionType.GROUP_CREATION:
+                return f"{self.sender_name} created this group"
+            case _:
+                return "unsupported action type"

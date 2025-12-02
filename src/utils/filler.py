@@ -1,8 +1,8 @@
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from uuid import UUID, uuid4
 
-from core.entities import Chat, Message, User
+from core.entities import Chat, Message, TextContent, User
 
 msg_words = "такие вот слова для сообщения".split()
 chat_words = "просто чат группа наше".split()
@@ -24,8 +24,8 @@ def create_messages(chat_id: UUID) -> list[Message]:
             local_id=i + 20,
             chat_id=chat_id,
             user_id=random.choice(_user_ids),
-            text=generate_text(),
-            time=datetime.now() + timedelta(minutes=i - 30),
+            content=TextContent(text=generate_text()),
+            created_at=datetime.now(tz=timezone.utc) + timedelta(minutes=i - 30),
         )
         for i in range(20)
     ]
@@ -62,7 +62,7 @@ chats: dict[UUID, Chat] = {
     chat_id: Chat(
         name=generate_name(),
         chat_id=chat_id,
-        last_msg=messages[chat_id][-1],
+        last_message=messages[chat_id][-1],
     )
     for chat_id in CHAT_IDS
 }

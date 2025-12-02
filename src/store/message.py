@@ -20,12 +20,12 @@ class MessageStore:
         return self._messages[chat_id]
 
     def add_messages(self, msgs: list[Message]):
-        """Добавление сообщения"""
+        """Добавление сообщений"""
         updated_chat_ids: set[UUID] = set()
         for msg in msgs:
             self._messages[msg.chat_id].append(msg)
             updated_chat_ids.add(msg.chat_id)
-            logger(f"New message: {msg.text}")
+            logger(f"New message: {msg}")
 
         for chat_id in updated_chat_ids:
             self._messages[chat_id].sort(key=lambda m: m.local_id)

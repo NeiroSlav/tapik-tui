@@ -36,5 +36,5 @@ class MessageBubbleWidget(Widget):
     def render(self):
         return (
             f"[b]{self.message_vm.sender_name}[/b] • {self.message_vm.str_time}\n"
-            f"{self.message_vm.full_text}"
+            f"{self.message_vm.str_content}"
         )
