@@ -5,12 +5,12 @@ from textual.reactive import reactive
 from textual.widget import Widget
 
 from core.entities import Message
-from store import RootStore
+from ui.root_mixin import RootProviderMixin
 from ui.viewmodels.message_vm import MessageVM
 from ui.widgets.active_chat.msg_list.msg_row import MessageRowWidget
 
 
-class MessageListWidget(VerticalScroll):
+class MessageListWidget(VerticalScroll, RootProviderMixin):
     """Список сообщений."""
 
     DEFAULT_CSS = """
@@ -35,9 +35,8 @@ class MessageListWidget(VerticalScroll):
 
     messages = reactive([])  # список объектов сообщений
 
-    def __init__(self, root_store: RootStore, chat_id: UUID):
+    def __init__(self, chat_id: UUID):
         super().__init__(id="msg-list")
-        self.root_store = root_store
         self.chat_id = chat_id
 
     # Жизненный цикл

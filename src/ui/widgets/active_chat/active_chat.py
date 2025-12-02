@@ -2,20 +2,16 @@ from uuid import UUID
 
 from textual.containers import Vertical
 
-from store import RootStore
+from ui.root_mixin import RootProviderMixin
 from ui.widgets.active_chat.chat_header import ChatHeaderWidget
 from ui.widgets.active_chat.msg_input import MessageInputWidget
 from ui.widgets.active_chat.msg_list.msg_list import MessageListWidget
 
 
-class ActiveChatWidget(Vertical):
+class ActiveChatWidget(Vertical, RootProviderMixin):
     """Активный чат."""
 
     chat_id: UUID | None = None
-
-    def __init__(self, root_store: RootStore):
-        super().__init__()
-        self.root_store = root_store
 
     # Жизненный цикл
 
@@ -41,9 +37,9 @@ class ActiveChatWidget(Vertical):
         if not self.chat_id:
             return
 
-        await self.mount(ChatHeaderWidget(self.root_store, self.chat_id))
-        await self.mount(MessageInputWidget(self.root_store, self.chat_id))
-        await self.mount(MessageListWidget(self.root_store, self.chat_id))
+        await self.mount(ChatHeaderWidget(self.chat_id))
+        await self.mount(MessageInputWidget(self.chat_id))
+        await self.mount(MessageListWidget(self.chat_id))
 
     # Хендлеры клавиш
 

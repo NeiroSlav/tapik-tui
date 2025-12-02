@@ -4,10 +4,10 @@ from rich.align import Align
 from rich.text import Text
 from textual.widget import Widget
 
-from store import RootStore
+from ui.root_mixin import RootProviderMixin
 
 
-class ChatHeaderWidget(Widget):
+class ChatHeaderWidget(Widget, RootProviderMixin):
     """Шапка активного чата"""
 
     DEFAULT_CSS = """
@@ -21,10 +21,9 @@ class ChatHeaderWidget(Widget):
     }
     """
 
-    def __init__(self, root_store: RootStore, chat_id: UUID):
+    def __init__(self, chat_id: UUID):
         super().__init__()
         self.chat_id = chat_id
-        self.root_store = root_store
 
     def render(self):
         chat = self.root_store.chats.get_chat(self.chat_id)

@@ -4,12 +4,12 @@ from textual.containers import VerticalScroll
 from textual.reactive import reactive
 
 from core.entities import Chat
-from store import RootStore
+from ui.root_mixin import RootProviderMixin
 from ui.viewmodels.chat_vm import ChatVM
 from ui.widgets.chat_list.chat_preview import ChatPreviewWidget
 
 
-class SidebarWidget(VerticalScroll):
+class SidebarWidget(VerticalScroll, RootProviderMixin):
     """Список чатов."""
 
     DEFAULT_CSS = """
@@ -29,10 +29,8 @@ class SidebarWidget(VerticalScroll):
 
     cursor_chat_id = reactive(None)
 
-    def __init__(self, root_store: RootStore):
+    def __init__(self):
         super().__init__(id="chat-list")
-
-        self.root_store = root_store
 
         self.chats: list[Chat] = []
         self.active_chat_id: UUID | None = None

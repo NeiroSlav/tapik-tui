@@ -1,11 +1,13 @@
 from textual.app import ComposeResult
 from textual.containers import Vertical
+from textual.screen import Screen
 from textual.widgets import Input, Label
 
-from handlers.handle_login import handle_login
+from ui.root_mixin import RootProviderMixin
 
 
-class LoginScreen(Vertical):
+class LoginScreen(Screen[None], RootProviderMixin):
+
     DEFAULT_CSS = """
 
     LoginScreen {
@@ -41,7 +43,7 @@ class LoginScreen(Vertical):
         )
 
         yield Vertical(
-            Label("TAPIK MESSANGER"),
+            Label("TAPIK MESSENGER"),
             self.login_input,
             self.pass_input,
         )
@@ -58,4 +60,4 @@ class LoginScreen(Vertical):
         if event.input.id == "password":
             login = self.login_input.value
             password = self.pass_input.value
-            await handle_login(login, password)
+            self.root_actions.login(login, password)
